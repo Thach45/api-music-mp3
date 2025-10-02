@@ -1,6 +1,11 @@
-if (process.env.HTTPS_PROXY || process.env.HTTP_PROXY) {
+// Use a custom proxy env so npm/yarn during build are not affected
+const outboundProxy = process.env.OUTBOUND_HTTP_PROXY || process.env.OUTBOUND_HTTPS_PROXY
+if (outboundProxy) {
   try {
-    // eslint-disable-next-line global-require
+    const proxyUrl = outboundProxy
+    if (!process.env.GLOBAL_AGENT_HTTP_PROXY) {
+      process.env.GLOBAL_AGENT_HTTP_PROXY = proxyUrl
+    }
     const { bootstrap } = require('global-agent')
     bootstrap()
   } catch (e) {
