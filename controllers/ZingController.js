@@ -6,6 +6,7 @@ class ZingController {
     ZingMp3.getSong(req.query.id).then((data) => {
       res.json(data)
     })
+    
   }
 
   getDetailPlaylist(req, res) {
