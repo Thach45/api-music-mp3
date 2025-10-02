@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZingMP3 API Demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+        .main-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .nav-tabs {
+            border-bottom: 2px solid #e9ecef;
+        }
+        .nav-tabs .nav-link {
+            border: none;
+            color: #6c757d;
+            font-weight: 500;
+            padding: 15px 25px;
+        }
+        .nav-tabs .nav-link.active {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            background: none;
+        }
+        .tab-content {
+            padding: 30px;
+        }
+        .api-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 4px solid #667eea;
+        }
+        .api-section h3 {
+            color: #495057;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        .api-section h3 i {
+            margin-right: 10px;
+            color: #667eea;
+        }
+        .form-control {
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            padding: 12px 15px;
+            transition: all 0.3s;
+        }
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 25px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .result {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid #e9ecef;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+        .song-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .song-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+        .song-card img {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        .video-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .video-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+        .video-card img {
+            width: 100%;
+            height: 150px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        .play-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 20px;
+        }
+        .video-container {
+            position: relative;
+        }
+        .badge {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        .endpoint-info {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .example-data {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+        .quality-badge {
+            background: #28a745;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin: 2px;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #f5c6cb;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #c3e6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-container">
+            <!-- Header -->
+            <div class="header">
+                <h1><i class="fas fa-music"></i> ZingMP3 API Demo</h1>
+                <p class="mb-0">Giao diện trực quan để test tất cả các API endpoints</p>
+            </div>
+
+            <!-- Navigation -->
+            <ul class="nav nav-tabs" id="apiTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="search-tab" data-bs-toggle="tab" data-bs-target="#search" type="button" role="tab">
+                        <i class="fas fa-search"></i> Tìm kiếm
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="song-tab" data-bs-toggle="tab" data-bs-target="#song" type="button" role="tab">
+                        <i class="fas fa-music"></i> Bài hát
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="playlist-tab" data-bs-toggle="tab" data-bs-target="#playlist" type="button" role="tab">
+                        <i class="fas fa-list"></i> Playlist
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="video-tab" data-bs-toggle="tab" data-bs-target="#video" type="button" role="tab">
+                        <i class="fas fa-video"></i> Video/MV
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab">
+                        <i class="fas fa-home"></i> Trang chủ
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="chart-tab" data-bs-toggle="tab" data-bs-target="#chart" type="button" role="tab">
+                        <i class="fas fa-chart-line"></i> Bảng xếp hạng
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="artist-tab" data-bs-toggle="tab" data-bs-target="#artist" type="button" role="tab">
+                        <i class="fas fa-user"></i> Nghệ sĩ
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Tab Content -->
+            <div class="tab-content" id="apiTabContent">
+                <!-- Search Section -->
+                <div class="tab-pane fade show active" id="search" role="tabpanel">
+                    <div class="api-section">
+                        <h3><i class="fas fa-search"></i> Tìm kiếm</h3>
+                        <div class="endpoint-info">
+                            <strong>Endpoint:</strong> GET /api/search?keyword={keyword}
+                        </div>
+                        <form class="search-form" data-endpoint="/api/search">
+                            <div class="mb-3">
+                                <input type="text" class="form-control" name="keyword" placeholder="Nhập từ khóa tìm kiếm (VD: Sơn Tùng, Vũ Cát Tường...)" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"></i> Tìm kiếm
+                            </button>
+                        </form>
+                        <div class="example-data">
+                            <strong>Ví dụ:</strong> Tìm kiếm "Sơn Tùng" sẽ trả về songs, artists, playlists, videos
+                        </div>
+                        <div class="result"></div>
+                    </div>
+                </div>
+
+                <!-- Song Section -->
+                <div class="tab-pane fade" id="song" role="tabpanel">
+                    <div class="api-section">
+                        <h3><i class="fas fa-music"></i> Thông tin bài hát</h3>
+                        <div class="endpoint-info">
+                            <strong>Endpoint:</strong> GET /api/song?id={encodeId}
+                        </div>
+                        <form class="song-form" data-endpoint="/api/song">
+                            <div class="mb-3">
+                                <input type="text" class="form-control" name="id" placeholder="Nhập encodeId bài hát (VD: Z6B8I0C8)" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-play"></i> Lấy URL stream
+                            </button>
+                        </form>
+                        <div class="example-data">
+                            <strong>Kết quả:</strong> Trả về URL stream chất lượng 128kbps và 320kbps
+                        </div>
+                        <div class="result"></div>
+                    </div>
+
+                    <div class="api-section">
+                        <h3><i class="fas fa-file-text"></i> Lời bài hát</h3>
+                        <div class="endpoint-info">
+                            <strong>Endpoint:</strong> GET /api/lyric?id={encodeId}
+                        </div>
+                        <form class="lyric-form" data-endpoint="/api/lyric">
+                            <div class="mb-3">
+                                <input type="text" class="form-control" name="id" placeholder="Nhập encodeId bài hát" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-align-left"></i> Xem lời bài hát
+                            </button>
+                        </form>
+                        <div class="result"></div>
+                    </div>
+                </div>
+
+                <!-- Playlist Section -->
+                <div class="tab-pane fade" id="playlist" role="tabpanel">
+                    <div class="api-section">
+                        <h3><i class="fas fa-list"></i> Chi tiết Playlist</h3>
+                        <div class="endpoint-info">
+                            <strong>Endpoint:</strong> GET /api/detailplaylist?id={playlistId}
+                        </div>
+                        <form class="playlist-form" data-endpoint="/api/detailplaylist">
+                            <div class="mb-3">
+                                <input type="text" class="form-control" name="id" placeholder="Nhập ID playlist (VD: ZOZ9678O)" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-list"></i> Xem playlist
+                            </button>
+                        </form>
+                        <div class="example-data">
+                            <strong>Kết quả:</strong> Trả về thông tin playlist và danh sách bài hát
+                        </div>
+                        <div class="result"></div>
+                    </div>
+                </div>
+
+                <!-- Video Section -->
+                <div class="tab-pane fade" id="video" role="tabpanel">
+                    <div class="api-section">
+                        <h3><i class="fas fa-video"></i> Danh sách MV</h3>
+                        <div class="endpoint-info">
+                            <strong>Endpoint:</strong> GET /api/listmv?id={artistId}&page={page}&count={count}
+                        </div>
+                        <form class="listmv-form" data-endpoint="/api/listmv">
+                            <div class="mb-3">
+                                <input type="text" class="form-control" name="id" placeholder="ID nghệ sĩ (VD: IWZ97DB0 cho Sơn Tùng)" required>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <input type="number" class="form-control" name="page" placeholder="Số trang (mặc định: 1)" value="1">
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="number" class="form-control" name="count" placeholder="Số lượng (mặc định: 20)" value="20">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary mt-3">
+                                <i class="fas fa-list"></i> Xem danh sách MV
+                            </button>
+                        </form>
+                        <div class="result"></div>
+                    </div>
+
+                    <div class="api-section">
+                        <h3><i class="fas fa-play-circle"></i> Thông tin Video</h3>
+                        <div class="endpoint-info">
+                            <strong>Endpoint:</strong> GET /api/video?id={videoId}
+                        </div>
+                        <form class="video-form" data-endpoint="/api/video">
+                            <div class="mb-3">
+                                <input type="text" class="form-control" name="id" placeholder="ID video (lấy từ search hoặc listmv)" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-play"></i> Lấy URL video
+                            </button>
+                        </form>
+                        <div class="example-data">
+                            <strong>Kết quả:</strong> Trả về URL video các chất lượng (480p, 720p, 1080p)
+                        </div>
+                        <div class="result"></div>
+                    </div>
+
+                    <div class="api-section">
+                        <h3><i class="fas fa-folder"></i> Danh mục MV</h3>
+                        <div class="endpoint-info">
+                            <strong>Endpoint:</strong> GET /api/categorymv?id={categoryId}
+                        </div>
+                        <form class="categorymv-form" data-endpoint="/api/categorymv">
+                            <div class="mb-3">
+                                <input type="text" class="form-control" name="id" placeholder="ID danh mục MV" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-folder"></i> Xem danh mục
+                            </button>
+                        </form>
+                        <div class="result"></div>
+                    </div>
+                </div>
+
+                <!-- Home Section -->
+                <div class="tab-pane fade" id="home" role="tabpanel">
+                    <div class="api-section">
+                        <h3><i class="fas fa-home"></i> Trang chủ</h3>
+                        <div class="endpoint-info">
+                            <strong>Endpoint:</strong> GET /api/home?page={page}
+                        </div>
+                        <form class="home-form" data-endpoint="/api/home">
+                            <div class="mb-3">
+                                <input type="number" class="form-control" name="page" placeholder="Số trang (không bắt buộc)">
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-home"></i> Xem trang chủ
+                            </button>
+                        </form>
+                        <div class="example-data">
+                            <strong>Kết quả:</strong> Trả về các section: banner, playlist, chart,...
+                        </div>
+                        <div class="result"></div>
+                    </div>
+                </div>
+
+                <!-- Chart Section -->
+                <div class="tab-pane fade" id="chart" role="tabpanel">
+                    <div class="api-section">
+                        <h3><i class="fas fa-chart-line"></i> Bảng xếp hạng</h3>
+                        <div class="endpoint-info">
+                            <strong>Endpoint:</strong> GET /api/charthome
+                        </div>
+                        <form class="chart-form" data-endpoint="/api/charthome">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-chart-line"></i> Xem BXH
+                            </button>
+                        </form>
+                        <div class="example-data">
+                            <strong>Kết quả:</strong> RTChart, weekChart (VN, US-UK, K-Pop)
+                        </div>
+                        <div class="result"></div>
+                    </div>
+
+                    <div class="api-section">
+                        <h3><i class="fas fa-star"></i> Top 100</h3>
+                        <div class="endpoint-info">
+                            <strong>Endpoint:</strong> GET /api/top100
+                        </div>
+                        <form class="top100-form" data-endpoint="/api/top100">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-star"></i> Xem Top 100
+                            </button>
+                        </form>
+                        <div class="example-data">
+                            <strong>Kết quả:</strong> Danh sách Top 100 theo thể loại
+                        </div>
+                        <div class="result"></div>
+                    </div>
+
+                    <div class="api-section">
+                        <h3><i class="fas fa-fire"></i> BXH Mới phát hành</h3>
+                        <div class="endpoint-info">
+                            <strong>Endpoint:</strong> GET /api/newreleasechart
+                        </div>
+                        <form class="newrelease-form" data-endpoint="/api/newreleasechart">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-fire"></i> Xem BXH mới
+                            </button>
+                        </form>
+                        <div class="result"></div>
+                    </div>
+                </div>
+
+                <!-- Artist Section -->
+                <div class="tab-pane fade" id="artist" role="tabpanel">
+                    <div class="api-section">
+                        <h3><i class="fas fa-user"></i> Thông tin nghệ sĩ</h3>
+                        <div class="endpoint-info">
+                            <strong>Endpoint:</strong> GET /api/artist?name={artistName}
+                        </div>
+                        <form class="artist-form" data-endpoint="/api/artist">
+                            <div class="mb-3">
+                                <input type="text" class="form-control" name="name" placeholder="Tên nghệ sĩ (VD: Sơn Tùng M-TP)" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-user"></i> Xem thông tin
+                            </button>
+                        </form>
+                        <div class="result"></div>
+                    </div>
+
+                    <div class="api-section">
+                        <h3><i class="fas fa-music"></i> Bài hát của nghệ sĩ</h3>
+                        <div class="endpoint-info">
+                            <strong>Endpoint:</strong> GET /api/artistsong?id={artistId}&page={page}&count={count}
+                        </div>
+                        <form class="artistsong-form" data-endpoint="/api/artistsong">
+                            <div class="mb-3">
+                                <input type="text" class="form-control" name="id" placeholder="ID nghệ sĩ (lấy từ /api/artist)" required>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <input type="number" class="form-control" name="page" placeholder="Số trang" value="1">
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="number" class="form-control" name="count" placeholder="Số lượng" value="20">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary mt-3">
+                                <i class="fas fa-music"></i> Xem bài hát
+                            </button>
+                        </form>
+                        <div class="result"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        class APIDemo {
+            constructor() {
+                this.initializeEventListeners();
+            }
+
+            initializeEventListeners() {
+                // Handle all form submissions
+                document.querySelectorAll('form[data-endpoint]').forEach(form => {
+                    form.addEventListener('submit', (e) => this.handleFormSubmit(e));
+                });
+            }
+
+            async handleFormSubmit(e) {
+                e.preventDefault();
+                const form = e.target;
+                const endpoint = form.getAttribute('data-endpoint');
+                
+                // Find the result div more reliably
+                const resultDiv = form.closest('.api-section').querySelector('.result');
+                
+                if (!resultDiv) {
+                    console.error('Result div not found');
+                    return;
+                }
+                
+                // Show loading
+                resultDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Đang tải...</div>';
+
+                try {
+                    // Build query string from form data
+                    const formData = new FormData(form);
+                    const params = new URLSearchParams();
+                    for (let [key, value] of formData.entries()) {
+                        if (value) params.append(key, value);
+                    }
+
+                    const url = `${endpoint}?${params.toString()}`;
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    if (data.err === 0) {
+                        this.displayResult(resultDiv, data.data, endpoint);
+                    } else {
+                        resultDiv.innerHTML = `<div class="error"><i class="fas fa-exclamation-triangle"></i> Lỗi: ${data.msg || 'Không xác định'}</div>`;
+                    }
+                } catch (error) {
+                    resultDiv.innerHTML = `<div class="error"><i class="fas fa-exclamation-triangle"></i> Lỗi kết nối: ${error.message}</div>`;
+                }
+            }
+
+            displayResult(resultDiv, data, endpoint) {
+                let html = '';
+
+                if (endpoint === '/api/search') {
+                    html = this.renderSearchResults(data);
+                } else if (endpoint === '/api/song') {
+                    html = this.renderSongStream(data);
+                } else if (endpoint === '/api/video') {
+                    html = this.renderVideoInfo(data);
+                } else if (endpoint === '/api/listmv') {
+                    html = this.renderMVList(data);
+                } else if (endpoint === '/api/detailplaylist') {
+                    html = this.renderPlaylistDetail(data);
+                } else if (endpoint === '/api/home') {
+                    html = this.renderHomeData(data);
+                } else if (endpoint === '/api/charthome') {
+                    html = this.renderChartData(data);
+                } else if (endpoint === '/api/top100') {
+                    html = this.renderTop100Data(data);
+                } else if (endpoint === '/api/artist') {
+                    html = this.renderArtistInfo(data);
+                } else if (endpoint === '/api/lyric') {
+                    html = this.renderLyric(data);
+                } else {
+                    html = `<div class="success"><i class="fas fa-check"></i> Thành công!</div><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                }
+
+                resultDiv.innerHTML = html;
+            }
+
+            renderSearchResults(data) {
+                let html = '<div class="success"><i class="fas fa-check"></i> Tìm kiếm thành công!</div>';
+                
+                if (data.songs && data.songs.length > 0) {
+                    html += '<h5 class="mt-3"><i class="fas fa-music"></i> Bài hát</h5>';
+                    data.songs.slice(0, 5).forEach(song => {
+                        html += `
+                            <div class="song-card">
+                                <div class="d-flex align-items-center">
+                                    <img src="${song.thumbnail}" alt="${song.title}" class="me-3">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">${song.title}</h6>
+                                        <p class="text-muted mb-1">${song.artistsNames}</p>
+                                        <small class="text-muted">${this.formatDuration(song.duration)}</small>
+                                    </div>
+                                    <span class="badge">${song.encodeId}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+                if (data.videos && data.videos.length > 0) {
+                    html += '<h5 class="mt-3"><i class="fas fa-video"></i> Video</h5>';
+                    data.videos.slice(0, 3).forEach(video => {
+                        html += `
+                            <div class="video-card">
+                                <div class="video-container">
+                                    <img src="${video.thumbnail}" alt="${video.title}">
+                                    <button class="play-btn"><i class="fas fa-play"></i></button>
+                                </div>
+                                <h6 class="mt-2">${video.title}</h6>
+                                <p class="text-muted">${video.artistsNames}</p>
+                                <span class="badge">${video.encodeId}</span>
+                            </div>
+                        `;
+                    });
+                }
+
+                return html;
+            }
+
+            renderSongStream(data) {
+                let html = '<div class="success"><i class="fas fa-check"></i> Lấy URL stream thành công!</div>';
+                html += '<h5 class="mt-3">URL Stream:</h5>';
+                
+                if (data['128']) {
+                    html += `<div class="quality-badge">128kbps</div><code>${data['128']}</code><br>`;
+                }
+                if (data['320']) {
+                    html += `<div class="quality-badge">320kbps</div><code>${data['320']}</code>`;
+                }
+
+                return html;
+            }
+
+            renderVideoInfo(data) {
+                let html = '<div class="success"><i class="fas fa-check"></i> Lấy thông tin video thành công!</div>';
+                html += `
+                    <div class="video-card">
+                        <div class="video-container">
+                            <img src="${data.thumbnail}" alt="${data.title}">
+                            <button class="play-btn"><i class="fas fa-play"></i></button>
+                        </div>
+                        <h6 class="mt-2">${data.title}</h6>
+                        <p class="text-muted">${data.artist?.name || 'Unknown'}</p>
+                        <p class="text-muted">Thời lượng: ${this.formatDuration(data.duration)}</p>
+                    </div>
+                `;
+
+                if (data.streaming && data.streaming.mp4) {
+                    html += '<h6 class="mt-3">URL Video:</h6>';
+                    Object.entries(data.streaming.mp4).forEach(([quality, url]) => {
+                        html += `<div class="quality-badge">${quality}</div><code>${url}</code><br>`;
+                    });
+                }
+
+                return html;
+            }
+
+            renderMVList(data) {
+                let html = '<div class="success"><i class="fas fa-check"></i> Lấy danh sách MV thành công!</div>';
+                
+                if (data.items && data.items.length > 0) {
+                    data.items.forEach(video => {
+                        html += `
+                            <div class="video-card">
+                                <div class="video-container">
+                                    <img src="${video.thumbnail}" alt="${video.title}">
+                                    <button class="play-btn"><i class="fas fa-play"></i></button>
+                                </div>
+                                <h6 class="mt-2">${video.title}</h6>
+                                <p class="text-muted">${video.artistsNames}</p>
+                                <p class="text-muted">Thời lượng: ${this.formatDuration(video.duration)}</p>
+                                <span class="badge">${video.encodeId}</span>
+                            </div>
+                        `;
+                    });
+                }
+
+                return html;
+            }
+
+            renderPlaylistDetail(data) {
+                let html = `
+                    <div class="success"><i class="fas fa-check"></i> Lấy thông tin playlist thành công!</div>
+                    <div class="song-card">
+                        <div class="d-flex align-items-center">
+                            <img src="${data.thumbnail}" alt="${data.title}" class="me-3">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">${data.title}</h6>
+                                <p class="text-muted mb-1">${data.artistsNames}</p>
+                                <small class="text-muted">${data.song?.total || 0} bài hát</small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                if (data.song && data.song.items) {
+                    html += '<h6 class="mt-3">Danh sách bài hát:</h6>';
+                    data.song.items.slice(0, 5).forEach(song => {
+                        html += `
+                            <div class="song-card">
+                                <div class="d-flex align-items-center">
+                                    <img src="${song.thumbnail}" alt="${song.title}" class="me-3">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">${song.title}</h6>
+                                        <p class="text-muted mb-1">${song.artistsNames}</p>
+                                        <small class="text-muted">${this.formatDuration(song.duration)}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+                return html;
+            }
+
+            renderHomeData(data) {
+                let html = '<div class="success"><i class="fas fa-check"></i> Lấy dữ liệu trang chủ thành công!</div>';
+                
+                if (data.items) {
+                    data.items.forEach(section => {
+                        html += `
+                            <div class="song-card">
+                                <h6><i class="fas fa-layer-group"></i> ${section.title}</h6>
+                                <p class="text-muted">Loại: ${section.sectionType}</p>
+                                <small class="text-muted">${section.items?.length || 0} items</small>
+                            </div>
+                        `;
+                    });
+                }
+
+                return html;
+            }
+
+            renderChartData(data) {
+                let html = '<div class="success"><i class="fas fa-check"></i> Lấy dữ liệu chart thành công!</div>';
+                
+                if (data.RTChart && data.RTChart.items) {
+                    html += '<h6 class="mt-3">RT Chart:</h6>';
+                    data.RTChart.items.slice(0, 3).forEach((song, index) => {
+                        html += `
+                            <div class="song-card">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-primary me-2">#${index + 1}</span>
+                                    <img src="${song.thumbnail}" alt="${song.title}" class="me-3">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">${song.title}</h6>
+                                        <p class="text-muted mb-1">${song.artistsNames}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+                return html;
+            }
+
+            renderTop100Data(data) {
+                let html = '<div class="success"><i class="fas fa-check"></i> Lấy Top 100 thành công!</div>';
+                
+                if (data.length > 0) {
+                    data.forEach(category => {
+                        html += `
+                            <div class="song-card">
+                                <h6><i class="fas fa-star"></i> ${category.title}</h6>
+                                <p class="text-muted">${category.songs?.length || 0} bài hát</p>
+                            </div>
+                        `;
+                    });
+                }
+
+                return html;
+            }
+
+            renderArtistInfo(data) {
+                let html = `
+                    <div class="success"><i class="fas fa-check"></i> Lấy thông tin nghệ sĩ thành công!</div>
+                    <div class="song-card">
+                        <div class="d-flex align-items-center">
+                            <img src="${data.thumbnail}" alt="${data.name}" class="me-3">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">${data.name}</h6>
+                                <p class="text-muted mb-1">ID: ${data.id}</p>
+                                <small class="text-muted">${data.follow || 0} followers</small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                if (data.biography) {
+                    html += `<p class="mt-2"><strong>Tiểu sử:</strong> ${data.biography.substring(0, 200)}...</p>`;
+                }
+
+                return html;
+            }
+
+            renderLyric(data) {
+                let html = '<div class="success"><i class="fas fa-check"></i> Lấy lời bài hát thành công!</div>';
+                
+                if (data.file) {
+                    html += `<p><strong>File lời:</strong> ${data.file}</p>`;
+                }
+
+                if (data.lyrics && data.lyrics.length > 0) {
+                    html += '<h6 class="mt-3">Lời bài hát:</h6>';
+                    html += '<div style="max-height: 200px; overflow-y: auto; background: #f8f9fa; padding: 15px; border-radius: 5px;">';
+                    data.lyrics.forEach(line => {
+                        if (line.words && line.words.length > 0) {
+                            const text = line.words.map(word => word.data).join(' ');
+                            html += `<p class="mb-1">${text}</p>`;
+                        }
+                    });
+                    html += '</div>';
+                }
+
+                return html;
+            }
+
+            formatDuration(seconds) {
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = Math.floor(seconds % 60);
+                return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+            }
+        }
+
+        // Initialize the demo
+        const demo = new APIDemo();
+    </script>
+</body>
+</html>
